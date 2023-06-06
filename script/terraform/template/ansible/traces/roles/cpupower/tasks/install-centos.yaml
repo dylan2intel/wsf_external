@@ -1,0 +1,11 @@
+
+- name: Install cpupower
+  yum:
+    name:
+      - cpupowerutils
+    update_cache: true
+  become: yes
+  register: yumrc
+  until: yumrc is success
+  retries: 10
+  delay: 10

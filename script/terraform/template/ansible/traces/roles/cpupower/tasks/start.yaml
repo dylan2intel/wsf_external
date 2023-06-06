@@ -1,0 +1,17 @@
+
+  - name: "Start cpupower on {{ trace_node.1 }}"
+    shell:
+      cmd: |
+        while true; do
+          date -Ins >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.logs
+          cpupower monitor {{ cpupower_options }} >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.logs
+          sleep {{ cpupower_interval }}
+        done > /dev/null 2>&1 &
+        echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.pid
+        disown
+      executable: /bin/bash
+    async: 5
+    poll: 0
+    become: yes
+    delegate_to: "{{ trace_node.1 }}"
+    ignore_errors: yes

@@ -1,0 +1,25 @@
+
+- hosts: "{{ ('controller' in groups) | ternary('controller','localhost') }}"
+  gather_facts: no
+  tasks:
+
+    - name: copy deployment script to controller
+      copy:
+        src: "{{ wl_logs_dir }}/{{ wl_kubernetes_yaml }}"
+        dest: "/tmp/{{ wl_namespace }}-{{ wl_kubernetes_yaml }}"
+        owner: "{{ ansible_user | default('tfu') }}"
+      when: ansible_connection != 'winrm'
+
+    - name: perform k8s validation over iterations
+      include_role:
+        name: deployment
+      when: ansible_connection != 'winrm'
+      loop: "{{ range(1, run_stage_iterations | default(1) |int+1, 1) | list }}"
+      loop_control:
+        loop_var: itr
+
+    - name: remove the deployment script
+      file:
+        path: "/tmp/{{ wl_namespace }}-{{ wl_kubernetes_yaml }}"
+        state: absent
+      when: ansible_connection != 'winrm'

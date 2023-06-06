@@ -1,0 +1,10 @@
+---
+- name: "Docker credential helper setup"
+  hosts: all
+  any_errors_fatal: false
+  gather_facts: false
+  tasks:
+    - name: "Prepare correct Docker Auth"
+      ansible.builtin.include_role:
+        name: docker_auth
+      when: ansible_connection != 'winrm'

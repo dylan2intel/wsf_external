@@ -1,0 +1,57 @@
+
+- name: Turn off incompatible services
+  include_tasks:
+    file: service.yaml
+
+- name: Create a local sav folder
+  file:
+    path: "{{ startup_restore_path }}"
+    state: directory
+    recurse: yes
+  failed_when: false
+
+- name: apply label kernel-args
+  include_role:
+    name: "{{ label_name.split('=')[0].split('-')[2]|lower }}"
+    tasks_from: kernel-args
+  when:
+    - label_name.startswith('HAS-SETUP-')
+    - (playbook_dir + '/roles/' + (label_name.split('=')[0].split('-')[2] | lower) + '/tasks/kernel-args.yaml') is exists
+  loop: "{{ k8s_node_labels }}"
+  loop_control:
+    loop_var: label_name
+
+- name: Apply kernel args
+  include_tasks:
+    file: kernel-args.yaml
+  when:
+  - wl_kernel_args.keys() | length > 0
+  - not ansible_host in my_ip_list.split(',')
+
+- name: auto-provision labels
+  include_role:
+    name: "{{ label_name.split('=')[0].split('-')[2]|lower }}"
+    tasks_from: install
+  when:
+    - label_name.startswith('HAS-SETUP-')
+    - wl_enable_reboot | default('true') | bool
+    - ( playbook_dir + '/roles/' + (label_name.split('=')[0].split('-')[2] | lower) + '/tasks/install.yaml' ) is exists
+  loop: "{{ k8s_node_labels }}"
+  loop_control:
+    loop_var: label_name
+
+- name: process kernel modules
+  include_tasks:
+    file: kernel-modules.yaml
+  when: (wl_kernel_modules | length) > 0
+
+- name: process sysctls
+  include_tasks:
+    file: sysctl.yaml
+  when: (wl_sysctls.keys() | length) + (wl_default_sysctls.keys() | length) > 0
+
+- name: process sysfs
+  include_tasks:
+    file: sysfs.yaml
+  when: (wl_sysfs.keys() | length) + (wl_default_sysfs.keys() | length) > 0
+

@@ -1,0 +1,11 @@
+
+k8s_calico_version: "v3.25"
+
+# ipip or vxlan
+# Note that: IP-IN-IP is blocked on Azure Cloud
+k8s_calico_encapsulation: "VXLAN"
+k8s_calico_ipinip_repo: "https://projectcalico.docs.tigera.io/archive/{{ k8s_calico_version }}/manifests/calico.yaml"
+k8s_calico_vxlan_repo: "https://projectcalico.docs.tigera.io/archive/{{ k8s_calico_version }}/manifests/calico-vxlan.yaml"
+
+# calicoctl is helpful tool to diagnose calico network
+k8s_calicoctl_rep: "https://projectcalico.docs.tigera.io/archive/{{ k8s_calico_version }}/manifests/calicoctl.yaml"

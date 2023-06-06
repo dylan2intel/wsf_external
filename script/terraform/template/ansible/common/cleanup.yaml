@@ -1,0 +1,13 @@
+
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+
+    - name: Cleanup sequence
+      include_role:
+        name: cleanup
+      when: 
+      - ((csp | default('static')) == 'static')
+      - ansible_connection != 'winrm'
+

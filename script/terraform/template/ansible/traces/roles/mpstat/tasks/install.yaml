@@ -1,0 +1,10 @@
+
+- name: Detect OS
+  shell:
+    cmd: ". /etc/os-release; echo $ID"
+    executable: /bin/bash
+  register: os
+
+- name: Install sysstat
+  include_tasks:
+    file: "install-{{ (os.stdout == 'rhel' or os.stdout =='anolis') | ternary('centos', os.stdout) }}.yaml"

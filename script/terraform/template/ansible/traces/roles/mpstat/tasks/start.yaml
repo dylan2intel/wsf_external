@@ -1,0 +1,13 @@
+
+  - name: "Start mpstat on {{ trace_node.1 }}"
+    shell:
+      cmd: |
+        mpstat {{ mpstat_options }} > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-mpstat.logs 2>&1 &
+        echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-mpstat.pid
+        disown
+      executable: /bin/bash
+    async: 5
+    poll: 0
+    become: yes
+    delegate_to: "{{ trace_node.1 }}"
+    ignore_errors: yes

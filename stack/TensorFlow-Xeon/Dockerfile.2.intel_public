@@ -1,0 +1,37 @@
+# tensorflow-intel-public
+
+ARG BASE_IMAGE=ubuntu
+ARG BASE_VER=20.04
+ARG BASE_SHA=sha256:b795f8e0caaaacad9859a9a38fe1c78154f8301fdaf0872eaf1520d66d9c0b98
+FROM ${BASE_IMAGE}:${BASE_VER}@${BASE_SHA} as build
+
+SHELL ["/bin/bash", "-c"]
+
+ARG PYTHON_VER="3.8.10"
+ARG PYTHON_REPO="apt"
+# apt's 3.8.2-0ubuntu2 == Python 3.8.10
+ARG PYTHON_APT_LOCK="3.8.2-0ubuntu2"
+
+ARG NUMACTL_VER="2.0.12-1"
+ARG NUMACTL_REPO="apt"
+
+ARG INTEL_TENSORFLOW_VER="2.12.0"
+ARG INTEL_TENSORFLOW_REPO="pip"
+
+ARG ITEX_VER="1.2.0"
+ARG ITEX_REPO="pip"
+
+ARG ONEDNN_VER="2.7.3"
+ARG ONEDNN_REPO="Built in TensorFlow"
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt -o Acquire::Check-Date=false update && \
+    apt install -y python3=${PYTHON_APT_LOCK} python3-pip numactl=${NUMACTL_VER} && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    python -m pip install intel-extension-for-tensorflow[cpu]==${ITEX_VER} "tensorflow==${INTEL_TENSORFLOW_VER}"
+
+FROM scratch
+COPY --from=build / /
+
+ENV TF_ENABLE_ONEDNN_OPTS 1
+ENV TF_ENABLE_MKL_NATIVE_FORMAT 1

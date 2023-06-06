@@ -1,0 +1,29 @@
+# resnet50v1_5-tensorflow-model
+
+ARG OS_VER="20.04"
+ARG OS_IMAGE="ubuntu"
+
+FROM ${OS_IMAGE}:${OS_VER} AS download
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt -o Acquire::Check-Date=false update && \
+    apt install -y wget
+
+ARG MODEL_WEIGHTS_FP32_VER="2535873"
+ARG MODEL_WEIGHTS_FP32_REPO="https://zenodo.org/record/2535873/files/resnet50_v1.pb"
+
+ARG MODEL_WEIGHTS_INT8_VER="v1_8"
+ARG MODEL_WEIGHTS_INT8_REPO="https://storage.googleapis.com/intel-optimized-tensorflow/models/${MODEL_WEIGHTS_INT8_VER}/resnet50v1_5_int8_pretrained_model.pb"
+
+ARG MODEL_WEIGHTS_BF16_VER="v1_8"
+ARG MODEL_WEIGHTS_BF16_REPO="https://storage.googleapis.com/intel-optimized-tensorflow/models/${MODEL_WEIGHTS_INT8_VER}/resnet50_v1_5_bfloat16.pb"
+
+# Download model
+RUN mkdir -p /model && \
+    cd model && \
+    wget --no-check-certificate ${MODEL_WEIGHTS_FP32_REPO} && \
+    wget --no-check-certificate ${MODEL_WEIGHTS_INT8_REPO} && \
+    wget --no-check-certificate ${MODEL_WEIGHTS_BF16_REPO}
+
+FROM scratch
+COPY --from=download /model /model

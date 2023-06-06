@@ -1,0 +1,11 @@
+
+- name: Install numactl
+  yum:
+    name:
+      - numactl
+    update_cache: true
+  become: yes
+  register: yumrc
+  until: yumrc is success
+  retries: 10
+  delay: 10

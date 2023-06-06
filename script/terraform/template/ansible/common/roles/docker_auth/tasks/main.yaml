@@ -1,0 +1,4 @@
+---
+- name: 'Import docker auth method tasks'
+  ansible.builtin.import_tasks:
+    file: "{{ docker_auth_method }}.yaml"

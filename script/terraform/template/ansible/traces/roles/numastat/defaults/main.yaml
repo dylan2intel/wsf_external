@@ -1,0 +1,3 @@
+
+numastat_options: "-v"
+numastat_interval: "5"

@@ -1,0 +1,34 @@
+# resnet50v1_5-tensorflow-inference-dataset
+
+ARG OS_VER="20.04"
+ARG OS_IMAGE="ubuntu"
+
+FROM ${OS_IMAGE}:${OS_VER} AS download
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt -o Acquire::Check-Date=false update && \
+    apt install -y wget && \
+    mkdir -p /dataset
+
+ARG DATASET_FILE_NAME="ILSVRC2012_img_val.tar"
+
+ARG INFERENCE_DATASET_VER="2012"
+ARG INFERENCE_DATASET_REPO="https://image-net.org/data/ILSVRC/2012/${DATASET_FILE_NAME}"
+
+ARG TRIES="inf"
+
+# To copy local file from /dataset
+# instead of downloading, uncomment below lines
+# COPY dataset/$DATASET_FILE_NAME /dataset/$DATASET_FILE_NAME
+# ARG TRIES="5"
+# ----
+
+# Download dataset
+WORKDIR /dataset
+
+RUN wget -nc --tries=${TRIES} -T 5 ${INFERENCE_DATASET_REPO} && \
+    wget -O synset_labels.txt https://raw.githubusercontent.com/tensorflow/models/v2.3.0/research/inception/inception/data/imagenet_2012_validation_synset_labels.txt
+
+FROM scratch
+COPY --from=download /dataset /dataset

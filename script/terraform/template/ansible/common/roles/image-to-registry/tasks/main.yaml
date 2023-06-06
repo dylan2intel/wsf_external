@@ -1,0 +1,58 @@
+
+    - name: setup port forwarding
+      shell: "ssh -p {{ ansible_port | default(22) }} {{ ansible_user }}@{{ ansible_host }} -fNL {{ local_registry_url }}:{{ k8s_remote_registry_url }} -i {{ ansible_private_key_file }} > /dev/null 2>&1"
+      delegate_to: localhost
+      when: not (k8s_enable_csp_registry | bool)
+
+    - name: create AWS ECR namespaces
+      shell: 
+        cmd: "AWS_PAGER= aws ecr create-repository --region {{ k8s_remote_registry_url.split('.')[3] }} --repository-name {{ k8s_remote_registry_url.split('/')[1:] | join('/') }}/{{ item.key.split(':')[0] | basename }}"
+        executable: /bin/bash
+      when:
+      - (k8s_enable_csp_registry | bool)
+      - (".amazonaws.com" in k8s_remote_registry_url)
+      with_dict: "{{ wl_docker_images }}"
+      delegate_to: localhost
+      ignore_errors: yes
+
+    - name: inspect images
+      command: "docker image inspect {{ item.key }}"
+      register: inspect
+      become: yes
+      with_dict: "{{ wl_docker_images }}"
+      delegate_to: localhost
+      ignore_errors: yes
+
+    - name: copy daemon images to registry
+      shell: 
+        cmd: |
+          skopeo copy {{ skopeo_options | default('') }} --dest-tls-verify=false docker-daemon:{{ item.item.key }} docker://{{ k8s_enable_csp_registry | bool | ternary(k8s_remote_registry_url,local_registry_url) }}/{{ item.item.key | basename }}
+        executable: /bin/bash
+      register: copy_result
+      until: copy_result.rc == 0
+      retries: 10
+      delay: 5
+      when: item.rc == 0
+      loop: "{{ inspect.results }}"
+      delegate_to: localhost
+      become: yes
+
+    - name: copy registry images to registry
+      shell: 
+        cmd: |
+          skopeo copy {{ skopeo_options | default('') }} --src-tls-verify={{ item.item.value }} --dest-tls-verify=false docker://{{ item.item.key }} docker://{{ k8s_enable_csp_registry | bool | ternary(k8s_remote_registry_url,local_registry_url) }}/{{ item.item.key | basename }}
+        executable: /bin/bash
+      register: copy_result
+      until: copy_result.rc == 0
+      retries: 10
+      delay: 5
+      when: item.rc != 0
+      loop: "{{ inspect.results }}"
+      delegate_to: localhost
+      become: yes
+
+    - name: cancel port forwarding
+      shell: "ssh -p {{ ansible_port | default(22) }} {{ ansible_user }}@{{ ansible_host }} -i {{ ansible_private_key_file }} -O cancel -L {{ local_registry_url }}:{{ k8s_remote_registry_url }} > /dev/null 2>&1"
+      delegate_to: localhost
+      when: not (k8s_enable_csp_registry | bool)
+

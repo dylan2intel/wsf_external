@@ -1,0 +1,5 @@
+---
+- name: set dsa kernel args
+  set_fact:
+    wl_kernel_args: "{{ wl_kernel_args | combine({ 'intel_iommu': 'intel_iommu=on', 'iommu': 'iommu=pt' }) }}"
+    kernel_args_reboot_required: true

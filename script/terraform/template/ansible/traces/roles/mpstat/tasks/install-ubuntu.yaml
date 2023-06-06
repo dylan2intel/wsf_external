@@ -1,0 +1,11 @@
+
+- name: Install sysstat
+  apt:
+    name:
+      - sysstat
+    update_cache: true
+  become: yes
+  register: aptrc
+  until: aptrc is success
+  retries: 10
+  delay: 10

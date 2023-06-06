@@ -1,0 +1,13 @@
+
+  - name: "Start iostat on {{ trace_node.1 }}"
+    shell:
+      cmd: |
+        iostat {{ iostat_options }} > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-iostat.logs 2>&1 &
+        echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-iostat.pid
+        disown
+      executable: /bin/bash
+    async: 5
+    poll: 0
+    become: yes
+    delegate_to: "{{ trace_node.1 }}"
+    ignore_errors: yes

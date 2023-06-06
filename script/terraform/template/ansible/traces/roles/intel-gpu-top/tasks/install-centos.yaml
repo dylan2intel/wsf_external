@@ -1,0 +1,11 @@
+
+- name: Install intel-gpu-tools
+  yum:
+    name:
+      - intel-gpu-tools
+    state: present
+  become: yes
+  register: yumrc
+  until: yumrc is success
+  retries: 10
+  delay: 10

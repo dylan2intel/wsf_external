@@ -1,0 +1,10 @@
+
+- name: "Stop mpstat on {{ trace_node.1 }}"
+  shell:
+    cmd: "kill -9 $(cat /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-mpstat.pid)"
+    executable: /bin/bash
+  become: yes
+  delegate_to: "{{ trace_node.1 }}"
+  ignore_errors: yes
+  async: 5
+  poll: 0

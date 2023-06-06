@@ -1,0 +1,18 @@
+
+  - name: Install k8s plugins
+    include_role:
+      name: "{{ plugin_name }}"
+    when: ((playbook_dir+'/roles/'+plugin_name+'/tasks/main.yaml') is exists)
+    loop: "{{ ['nfd'] + k8s_plugins }}"
+    loop_control:
+      loop_var: plugin_name
+
+  - name: label nodes
+    include_role:
+      name: label
+      tasks_from: set
+
+  - name: Create cluster info
+    include_role:
+      name: cluster-info
+

@@ -1,0 +1,11 @@
+
+- name: Install sysstat
+  yum:
+    name:
+      - sysstat
+    update_cache: true
+  become: yes
+  register: yumrc
+  until: yumrc is success
+  retries: 10
+  delay: 10

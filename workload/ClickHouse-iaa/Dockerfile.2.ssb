@@ -1,0 +1,36 @@
+# clickhouse-iaa-ssb
+
+ARG RELEASE
+FROM clickhouse-iaa-base${RELEASE}
+WORKDIR /root
+
+ARG SSB_DBGEN_VER=0741e06d4c3e811bcec233378a39db2fc0be5d79
+ARG SSB_DBGEN_REPO=https://github.com/vadimtk/ssb-dbgen.git
+
+RUN git clone ${SSB_DBGEN_REPO} && \
+    cd ssb-dbgen && git checkout ${SSB_DBGEN_VER} && \
+    make && \
+    ./dbgen -s 20 -T c && \
+    ./dbgen -s 20 -T p && \
+    ./dbgen -s 20 -T s && \
+    ./dbgen -s 20 -T l && \
+    cd ..
+
+COPY scripts/ssbtest.sh /root/
+COPY scripts/ssbclient.sh /root/
+COPY scripts/ssbqueries.sh /root/
+COPY scripts/enable_4iaa.sh /root/
+COPY scripts/accel-iaa-4d1g8e.conf /root/
+COPY scripts/ssbqueries.sql /root/
+COPY scripts/ssbqueries_gated.sql /root/
+COPY scripts/tablegen.sql /root/
+COPY scripts/tableconvert.sql /root/
+WORKDIR /root
+RUN chmod +x ssbtest.sh && \
+    chmod +x ssbclient.sh && \
+    chmod +x ssbqueries.sh && \
+    chmod +x enable_4iaa.sh && \
+    mkfifo /export-logs
+CMD (./ssbtest.sh;  echo $? > status) 2>&1 | tee output.logs && \
+    tar cf /export-logs status output.logs && \
+    sleep infinity

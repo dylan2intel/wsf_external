@@ -1,0 +1,9 @@
+# clickhouse-iaa-server
+
+ARG RELEASE
+FROM clickhouse-iaa-base${RELEASE}
+
+WORKDIR /root
+EXPOSE 8123
+EXPOSE 9000
+CMD clickhouse server --config-file=/etc/clickhouse-server/config.xml

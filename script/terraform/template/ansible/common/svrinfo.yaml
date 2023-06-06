@@ -1,0 +1,11 @@
+
+- hosts: all
+  any_errors_fatal: true
+  gather_facts: no
+  tasks:
+
+    - name: Invoke svrinfo
+      include_role:
+        name: svrinfo
+      when: ansible_connection != 'winrm'
+

@@ -1,0 +1,5 @@
+local_registry_url: "localhost:16666"
+k8s_remote_registry_url: ""
+k8s_enable_registry: true
+k8s_enable_csp_registry: false
+wl_docker_images: {}

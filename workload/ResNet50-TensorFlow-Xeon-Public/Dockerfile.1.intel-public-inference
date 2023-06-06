@@ -1,0 +1,40 @@
+# ai-resnet50v1_5-tensorflow-intel-public-inference
+
+ARG RELEASE
+
+FROM ai-common-img${RELEASE} AS ai_common
+FROM resnet50v1_5-tensorflow-inference-dataset${RELEASE} AS inference_data
+FROM resnet50v1_5-tensorflow-model${RELEASE} AS model
+FROM resnet50v1_5-tensorflow-benchmark${RELEASE} AS benchmark
+FROM tensorflow-intel-public${RELEASE}
+
+RUN mkdir -p /home/workspace
+
+COPY --from=ai_common /home/ai_common /home/workspace/models/ai_common
+COPY --from=inference_data /dataset /home/workspace/dataset
+COPY --from=model /model /home/workspace/model
+COPY --from=benchmark /models /home/workspace/models
+
+RUN DEBIAN_FRONTEND=noninteractive apt install -y openmpi-bin && apt clean
+
+WORKDIR /home/workspace/models
+
+RUN mkdir -p output && \
+    cd /home/workspace/models/ai_common/libs && \
+    cp /home/workspace/models/datasets/imagenet/imagenet_to_gcs.py . && \
+    ./val_imagenet_to_tfrecords.sh /home/workspace/dataset
+
+ENV OUTPUT_DIR="/home/workspace/models/output"
+ENV INFERENCE_DATASET_DIR="/home/workspace/dataset/tf_records/validation"
+ENV FP32_MODEL_DIR="/home/workspace/model/resnet50_v1.pb"
+ENV INT8_MODEL_DIR="/home/workspace/model/resnet50v1_5_int8_pretrained_model.pb"
+ENV BF16_MODEL_DIR="/home/workspace/model/resnet50_v1_5_bfloat16.pb"
+
+ADD run_test.sh .
+
+RUN mkfifo /export-logs
+
+CMD ( ./run_test.sh; \
+    echo $? > status) 2>&1 | tee benchmark_${MODE}_${TOPOLOGY}_${PRECISION}_${FUNCTION}_${DATA_TYPE}_$(date +"%m-%d-%y-%H-%M-%S").log && \
+    tar cf /export-logs status $(find . -name "*.log") && \
+    sleep infinity

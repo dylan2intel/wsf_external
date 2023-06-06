@@ -1,0 +1,17 @@
+
+  - name: "Start numastat on {{ trace_node.1 }}"
+    shell:
+      cmd: |
+        while true; do
+          date -Ins >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-numastat.logs
+          numastat {{ numastat_options }} >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-numastat.logs 2>&1
+          sleep {{ numastat_interval }}
+        done > /dev/null 2>&1 &
+        echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-numastat.pid
+        disown
+      executable: /bin/bash
+    async: 5
+    poll: 0
+    become: yes
+    delegate_to: "{{ trace_node.1 }}"
+    ignore_errors: yes

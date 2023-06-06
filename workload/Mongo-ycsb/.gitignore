@@ -1,0 +1,7 @@
+Dockerfile
+Dockerfile.2.ycsb
+Dockerfile.1.mongodb.*.ycsb_mongodb604_redhat
+Dockerfile.1.mongodb.*.ycsb_mongodb604_base
+Dockerfile.1.mongodb.*.ycsb_mongodb441_base
+Dockerfile.1.mongodb.*.ycsb_mongodb403_iaa
+Dockerfile.1.mongodb.*.ycsb_mongodb403_base

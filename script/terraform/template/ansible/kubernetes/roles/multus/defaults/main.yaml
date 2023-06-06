@@ -1,0 +1,3 @@
+
+k8s_multus_version: "v4.0.1"
+k8s_multus_repo: "https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ k8s_multus_version }}/deployments/multus-daemonset.yml"

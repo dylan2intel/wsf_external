@@ -1,0 +1,63 @@
+# clickhouse-iaa-base
+
+ARG OS_VER=jammy-20230308
+ARG OS_IMAGE=ubuntu
+FROM ${OS_IMAGE}:${OS_VER}
+ARG CLICKHOUSE_VER=23.2.4.12
+ARG CLICKHOUSE_PACKAGE=https://packages.clickhouse.com/tgz/stable
+ARG DEBIAN_FRONTEND=noninteractive
+WORKDIR /root
+
+RUN apt-get -y update && apt-get -y install curl sudo dialog wget xz-utils && \
+    apt-get -y install git cmake ccache python3 ninja-build nasm yasm gawk software-properties-common && \
+    apt-get -y install build-essential autoconf automake autotools-dev libtool pkgconf asciidoc xmlto && \
+    apt-get -y install uuid-dev libjson-c-dev libkeyutils-dev libz-dev libssl-dev && \
+    apt-get -y install debhelper devscripts debmake quilt fakeroot lintian asciidoctor file gnupg patch patchutils
+
+RUN wget https://apt.llvm.org/llvm.sh && \
+    chmod +x llvm.sh && \
+    ./llvm.sh 15
+RUN wget -O - ${CLICKHOUSE_PACKAGE}/clickhouse-common-static-${CLICKHOUSE_VER}-amd64.tgz | tar xzf - && \
+    wget -O - ${CLICKHOUSE_PACKAGE}/clickhouse-common-static-dbg-${CLICKHOUSE_VER}-amd64.tgz | tar xzf - && \
+    wget -O - ${CLICKHOUSE_PACKAGE}/clickhouse-server-${CLICKHOUSE_VER}-amd64.tgz | tar xzf - 
+
+RUN clickhouse-common-static-${CLICKHOUSE_VER}/install/doinst.sh && \
+    clickhouse-common-static-dbg-${CLICKHOUSE_VER}/install/doinst.sh
+
+# accel-config install
+ARG IDXD_VER=accel-config-v3.4.6.4
+ARG IDXD_REPO=https://github.com/intel/idxd-config.git
+
+RUN git clone -b ${IDXD_VER} ${IDXD_REPO} && \
+    cd idxd-config && \
+    ./autogen.sh && \
+    ./configure CFLAGS='-g -O2' --prefix=/usr --sysconfdir=/etc --libdir=/usr/lib64 --enable-test=yes && \
+    make && \
+    make install
+
+ARG CLICKHOUSE_SRC_VER=v23.2.4.12-stable
+ARG CLICKHOUSE_SRC_REPO=https://github.com/ClickHouse/ClickHouse.git
+ENV CC=clang-15
+ENV CXX=clang++-15
+
+RUN git clone --recursive --shallow-submodules -b ${CLICKHOUSE_SRC_VER} ${CLICKHOUSE_SRC_REPO} && \
+    mkdir ClickHouse/build && \
+    cd ClickHouse/build && \
+    cmake -DENABLE_AVX512=1 -DCMAKE_BUILD_TYPE=Release .. && \
+    ninja && cp programs/clickhouse /usr/bin && \
+    cd ../.. && rm -rf ClickHouse   
+
+WORKDIR /root/clickhouse-server-${CLICKHOUSE_VER}/install
+RUN DEBIAN_FRONTEND=noninteractive ./doinst.sh 
+RUN sed -i 's/<!-- <listen_host>::<\/listen_host> -->/<listen_host>0.0.0.0<\/listen_host>/g' /etc/clickhouse-server/config.xml
+RUN sed -i "/<mark_cache_size>/i\    <compression>" /etc/clickhouse-server/config.xml && \
+    sed -i "/<mark_cache_size>/i\      <case>" /etc/clickhouse-server/config.xml && \
+    sed -i "/<mark_cache_size>/i\        <method>deflate_qpl<\/method>" /etc/clickhouse-server/config.xml && \
+    sed -i "/<mark_cache_size>/i\      <\/case>" /etc/clickhouse-server/config.xml && \
+    sed -i "/<mark_cache_size>/i\    <\/compression>" /etc/clickhouse-server/config.xml && \
+    mkdir -p /var/lib/clickhouse
+
+WORKDIR /root
+EXPOSE 8123
+EXPOSE 9000
+CMD clickhouse server --config-file=/etc/clickhouse-server/config.xml
