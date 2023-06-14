@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 DIR="$( cd "$( dirname "$0" )" &> /dev/null && pwd )"
 source "$DIR"/ai_common/libs/information.sh
@@ -12,9 +17,9 @@ if [[ "$*" =~ "latency" ]]; then
     fi
 fi
 
-socket_number=`lscpu | grep "Socket(s)" | awk -F ':' '{print $2}'`
-cores_per_socket=`lscpu | grep "Core(s) per socket" | awk -F ':' '{print $2}'`
-numa_nodes=`lscpu | grep "NUMA node(s)" | awk -F ':' '{print $2}'`
+socket_number=`lscpu | grep "Socket(s)" | awk -F ':' '{print $2}' | tr -d '[:space:]'`
+cores_per_socket=`lscpu | grep "Core(s) per socket" | awk -F ':' '{print $2}' | tr -d '[:space:]'`
+numa_nodes=`lscpu | grep "NUMA node(s)" | awk -F ':' '{print $2}' | tr -d '[:space:]'`
 total_cores=$((socket_number*cores_per_socket))
 cores_per_numa=$((total_cores/numa_nodes))
 
@@ -108,6 +113,7 @@ case ${PRECISION} in
 esac
 
 if [ "${WEIGHT_SHARING}" == "True" ]; then
+    LAUNCH_ARGS=${LAUNCH_ARGS//--ncore_per_instance=${CORES_PER_INSTANCE} --ninstances=${INSTANCE_NUMBER}/--ncore_per_instance=${cores_per_numa} --ninstances=${numa_nodes}}
     EXEC_ARGS+=" --use_share_weight --total_cores=${cores_per_numa} --cores_per_instance=${CORES_PER_INSTANCE}"
 fi
 

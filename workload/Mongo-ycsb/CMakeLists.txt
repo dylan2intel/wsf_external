@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 # CMakeLists.txt is the place to manage test cases. Think of a test case as certain 
 # combination of configurable parameters of a workload. You need to configure at 
 # least a common test case  and a gated test case. The common test case is used to 

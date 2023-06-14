@@ -1,7 +1,13 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
   - name: "Start mpstat on {{ trace_node.1 }}"
     shell:
       cmd: |
+        date -Ins > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-mpstat.start
         mpstat {{ mpstat_options }} > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-mpstat.logs 2>&1 &
         echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-mpstat.pid
         disown

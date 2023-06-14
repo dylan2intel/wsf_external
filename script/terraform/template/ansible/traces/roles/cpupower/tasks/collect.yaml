@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 - name: Create the cpupower directory
   file:
@@ -9,25 +14,30 @@
 
 - name: Fetch cpupower files
   fetch:
-    src: "/tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.logs"
-    dest: "{{ wl_logs_dir }}/{{ trace_node.1 }}-{{ itr | default(1) }}-cpupower/cpupower.logs"
+    src: "/tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.{{ item.src }}"
+    dest: "{{ wl_logs_dir }}/{{ trace_node.1 }}-{{ itr | default(1) }}-cpupower/{{ item.dest }}"
     flat: yes
   become: no
   delegate_to: "{{ trace_node.1 }}"
   ignore_errors: yes
+  loop:
+  - src: logs
+    dest: cpupower.logs
+  - src: start
+    dest: TRACE_START
+  - src: stop
+    dest: TRACE_STOP
 
 - name: Remove any collection files
   file:
-    path: "/tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.logs"
+    path: "/tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.{{ item }}"
     state: absent
   become: yes
   delegate_to: "{{ trace_node.1 }}"
   ignore_errors: yes
+  loop:
+  - logs
+  - start
+  - stop
+  - pid
 
-- name: Remove any collection files
-  file:
-    path: "/tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.pid"
-    state: absent
-  become: yes
-  delegate_to: "{{ trace_node.1 }}"
-  ignore_errors: yes

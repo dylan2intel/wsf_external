@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 for i in $(seq ${disk_count}); do
     devdisk="${device_root}-$(( i - 1 ))"

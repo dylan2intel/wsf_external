@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 - name: check multus installed or not
   shell: "kubectl get pods --all-namespaces | grep -i multus"
   register: multus_installed

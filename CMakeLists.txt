@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 cmake_minimum_required (VERSION 2.8...3.24)
 
@@ -34,7 +39,7 @@ else()
 endif()
 
 include(registry OPTIONAL)
-execute_process(COMMAND bash -c "GIT_SSH_COMMAND='ssh -o BatchMode=yes' GIT_ASKPASS=echo git fetch --tags > /dev/null && GIT_ASKPASS=echo git tag | sort -V" TIMEOUT 5 OUTPUT_VARIABLE tmp RESULT_VARIABLE status OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+execute_process(COMMAND bash -c "GIT_SSH_COMMAND='ssh -o BatchMode=yes' GIT_ASKPASS=echo git fetch --tags > /dev/null;GIT_ASKPASS=echo git tag | sort -V" TIMEOUT 5 OUTPUT_VARIABLE tmp RESULT_VARIABLE status OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
 if (RELEASE MATCHES "^:?v?[0-9]+[.][0-9]+[.]*[0-9]*$")
     string(REPLACE ":" "" release1 "${RELEASE}")
     if ((status EQUAL 0) AND (tmp MATCHES "${release1}"))

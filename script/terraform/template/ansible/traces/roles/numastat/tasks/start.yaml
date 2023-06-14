@@ -1,7 +1,13 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
   - name: "Start numastat on {{ trace_node.1 }}"
     shell:
       cmd: |
+        date -Ins > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-numastat.start
         while true; do
           date -Ins >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-numastat.logs
           numastat {{ numastat_options }} >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-numastat.logs 2>&1

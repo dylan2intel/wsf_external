@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 if [[ "$@" = *"--bom"* ]]; then
     . "$PROJECTROOT"/script/build.sh $@
@@ -47,6 +52,7 @@ EOF
             "-e" "NAMESPACE"
             "-e" "PLATFORM"
 	          "-e" "STACK_TEMPLATE_PATH"
+            "-e" "PACKER_GITHUB_API_TOKEN"
             "--name" "$NAMESPACE"
         )
         if [ "$csp" = "static" ] || [ "$csp" = "kvm" ]; then

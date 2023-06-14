@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 CLICKHOUSE_CLIENT="clickhouse client -h 127.0.0.1"
 # localhost for docker, service IP for k8s

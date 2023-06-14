@@ -1,4 +1,9 @@
 #!/bin/sh -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # This dummy workload calculates the PI sequence. with workload-specific custom scale,return_value and sleep_time params
 

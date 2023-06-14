@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 ### 1000 warehouses (~100GB size)
 export DB_DATASIZE_OF_WAREHOUSE_RATIO=${DB_DATASIZE_OF_WAREHOUSE_RATIO:-0.1}

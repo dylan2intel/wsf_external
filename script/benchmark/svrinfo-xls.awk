@@ -1,4 +1,9 @@
 #!/usr/bin/gawk
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 function add_svrinfo_cell(vv) {
     t=(vv==vv*1)?"Number":"String"

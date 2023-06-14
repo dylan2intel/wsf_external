@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 OPTION=${1:-inference_throughput_avx_fp32_gated}
 PLATFORM=${PLATFORM:-SPR}

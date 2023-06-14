@@ -91,7 +91,7 @@ cd workload/Mongo-ycsb
 
 ### KPI
 
-Run the [`list-kpi.sh`](../../doc/ctest.md#list-kpish) script to parse the KPIs from the validation logs. 
+Run the [`list-kpi.sh`](../../doc/user-guide/executing-workload/ctest.md#list-kpish) script to parse the KPIs from the validation logs.
 
 The expected output should be similar to this. Please note that the numbers might be slightly different. 
 
@@ -149,7 +149,7 @@ Mean of [run phase] Throughput(ops/sec): The average value of each instance of a
 ```
 
 ### Customize Test Configurations
-Refer to [`ctest.md`](../../../../../doc/ctest.md#Customize%20Configurations) to customize test parameters.
+Refer to [`ctest.md`](../../../../../doc/user-guide/executing-workload/ctest.md#Customize%20Configurations) to customize test parameters.
 
 Parameters for workload configure:
 * `EVENT_TRACE_PARAMS`: For collecting trace data.

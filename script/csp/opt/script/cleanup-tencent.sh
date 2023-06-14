@@ -1,8 +1,14 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 . "$(dirname "$0")"/cleanup-common.sh
 
 read_regions tencent
+has_image=0
 for regionres in "${REGIONS[@]}"; do
     region="${regionres/,*/}"
     echo "region: $region"
@@ -31,8 +37,12 @@ for regionres in "${REGIONS[@]}"; do
         echo "Scanning images..."
         for image in $(tccli cvm DescribeImages --region $region1 --output=json | jq ".ImageSet[] | select(.Tags.Tag[].TagValue | test(\"$OWNER\")) | .ImageId" 2>/dev/null | tr -d '"'); do
             echo "image: $image"
-            resources+=($image)
-            (set -x; tccli cvm DeleteImages --region $region1 --ImageIds "[\"$image\"]")
+            if [[ "$@" = *"--images"* ]]; then
+                resources+=($image)
+                (set -x; tccli cvm DeleteImages --region $region1 --ImageIds "[\"$image\"]")
+            else
+                has_image=1
+            fi
         done
 
         [ "${#resources[@]}" -eq 0 ] && break
@@ -43,4 +53,10 @@ for regionres in "${REGIONS[@]}"; do
         (set -x; tccli cvm DeleteKeyPairs --region $region1 --KeyIds "[\"$kp\"]")
     done
 done
-delete_regions tencent
+
+if [ $has_image -eq 1 ]; then
+    echo "VM images are left untouched."
+    echo "Use 'cleanup --images' to clean up VM images"
+else
+    delete_regions tencent
+fi

@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 . "$(dirname "$0")"/cleanup-common.sh
 
@@ -11,6 +16,7 @@ for iid in $(gcloud compute instances list --filter "labels.owner:$OWNER" --form
     done
 done
 
+has_image=0
 while true; do
     resources=()
 
@@ -69,10 +75,20 @@ while true; do
     echo "Scaning Images..."
     for im in $(gcloud compute images list --filter "labels.owner=$OWNER" --format yaml | awk '/^name:/{print$NF}' | tr -d '"'); do
         echo "Image: $im"
-        resources+=($im)
-        (set -x; gcloud compute images delete --quiet $im)
+        if [[ "$@" = *"--images"* ]]; then
+            resources+=($im)
+            (set -x; gcloud compute images delete --quiet $im)
+        else
+            has_image=1
+        fi
     done
 
     [ "${#resources[@]}" -eq 0 ] && break
 done
-delete_regions gcp
+
+if [ $has_image -eq 1 ]; then
+    echo "VM images are left untouched."
+    echo "Use 'cleanup --images' to clean up VM images"
+else
+    delete_regions gcp
+fi

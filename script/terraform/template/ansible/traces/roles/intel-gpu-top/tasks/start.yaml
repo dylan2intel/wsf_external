@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
   - name: Check if graphics card present on the PCI bus
     shell:
@@ -7,10 +12,6 @@
     ignore_errors: yes
     register: chk_vga
 
-  - debug:
-      msg: "Skip tracing, since no graphics card detected!"
-    when: chk_vga.rc != 0
-
   - name: Check if the i915 kernel driver loaded
     shell:
       cmd: lsmod | grep i915
@@ -19,13 +20,10 @@
     ignore_errors: yes
     register: chk_i915_kernel_driver
 
-  - debug:
-      msg: "Skip tracing, since no i915 kernel driver detected!"
-    when: chk_i915_kernel_driver.rc != 0
-
   - name: "Start intel_gpu_top on {{ trace_node.1 }}"
     shell:
       cmd: |
+        date -Ins > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-igt.start
         /usr/bin/intel_gpu_top {{ igt_options }} > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-igt.logs 2>&1 &
         echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-igt.pid
         disown

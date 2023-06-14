@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 CONFIG=${CONFIG:-sw-rsa}
 ASYNC_JOBS=${ASYNC_JOBS:-64}

@@ -1,0 +1,22 @@
+# bertlarge-tensorflow-xeon-public-benchmark
+
+ARG OS_VER="22.04"
+ARG OS_IMAGE="ubuntu"
+FROM ${OS_IMAGE}:${OS_VER} as build
+
+RUN apt -o Acquire::Check-Date=false update && \
+    DEBIAN_FRONTEND=noninteractive && \
+    apt install -y git
+
+WORKDIR /home/workspace
+
+# Install Intel Model Zoo
+ARG IntelAI_MODELS_VER="4a5aa3f0f46ad0c588a9c5e9e3d840d68e3de40a"
+ARG IntelAI_MODELS_REPO="https://github.com/IntelAI/models.git"
+
+RUN git clone -b spr-launch-public ${IntelAI_MODELS_REPO} /home/workspace && \
+    git reset --hard ${IntelAI_MODELS_VER}
+
+# Construct the Final Image
+FROM scratch
+COPY --from=build /home/workspace /home/workspace

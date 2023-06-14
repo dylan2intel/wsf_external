@@ -27,7 +27,7 @@ The BERT Large workload provides test cases with the following configuration par
 - **PRECISION**: Specify the model precision: `avx_int8`, `avx_fp32`, `amx_int8`, `amx_bfloat16` or `amx_bfloat32`. Default one is `avx_fp32`. For GENOA platform `avx_bfloat16` precision is supported. (Note: `amx` precisions are not supported when `PLATFORM=ICX`) 
 - **FUNCTION**: Specify whether the workload should run: `inference`, `training`(not support).
 - **DATA_TYPE**: Specify the input/output data type: `real`. 
-- **CASE_TYPE**: This is an optional parameter, specify `gated` or `pkm`.  Please refer to more details about [case type](../../doc/testcase.md).
+- **CASE_TYPE**: This is an optional parameter, specify `gated` or `pkm`.  Please refer to more details about [case type](../../doc/user-guide/executing-workload/testcase.md).
 - **BATCH_SIZE**: Specify the batch size value: default as `BATCH_SIZE=1`.
 - **WARMUP_STEPS**: Specify the number of steps for warming purpose before entering the formal stage.
 - **STEPS**: Specify the inference steps value: default as `STEPS=10`. This parameter is not tunable using accuracy case. (Note: make sure the `STEPS` large enough when the `BATCH_SIZE` is small, or may meet `division by zero` error.)
@@ -72,11 +72,11 @@ The BERT Large workload provides the docker image for inference only: `bertlarge
 
 #### build docker image from scrach
 do cmake and make to build a specific workload
-Please refer to [cmake doc](../../doc/cmake.md) and [How to build a specific workload only](../../doc/FAQ.md)
+Please refer to [cmake doc](../../doc/user-guide/executing-workload/cmake.md) and [How to build a specific workload only](https://github.com/intel-innersource/applications.benchmarking.benchmark.platform-hero-features/wiki/FAQ)
 
 ### System Requirements
 
-See [AI Setup](../../doc/setup-ai.md) for system setup instructions.
+See [AI Setup](../../doc/user-guide/preparing-infrastructure/setup-ai.md) for system setup instructions.
 
  
 
@@ -86,7 +86,7 @@ The minimum memory for this workload is `12 GB per instance (>=1)`
 
 ### KPI
 
-Run the [`list-kpi.sh`](../../doc/ctest.md#list-kpish) script to parse the KPIs from the validation logs. 
+Run the [`list-kpi.sh`](../../doc/user-guide/executing-workload/ctest.md#list-kpish) script to parse the KPIs from the validation logs.
 
 KPI output example:
 ```
@@ -95,12 +95,12 @@ KPI output example:
 #================================================
 *Throughput (samples/sec): 186.18
 ```
-Refer to [AI](../../doc/setup-ai.md) for more KPI details.
+Refer to [AI](../../doc/user-guide/preparing-infrastructure/setup-ai.md) for more KPI details.
 
 ### Index Info
 - Name: `Bert Large, PyTorch`  
 - Category: `ML/DL/AI`  
-- Platform: `GNR`, `SPR`, `ICX`, `SRF`, `EMR`, `GENOA`
+- Platform: `SPR`, `ICX`
 - Keywords: `AMX`, `TMUL`  
 
 ### See Also

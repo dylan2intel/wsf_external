@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # args: [in] cluster-config [out] terraform-config.yaml [in] controller_vm_count
 terraform_config_tf="$2"
@@ -238,36 +243,8 @@ for e in $(compgen -e); do
         override_string "" wl_namespace default WL_NAMESPACE
         ;;
     # RESERVED
-    WL_DOCKER_IMAGE=*)
-        override_string "" wl_docker_image default WL_DOCKER_IMAGE
-        ;;
-    # RESERVED
-    WL_DOCKER_OPTIONS=*)
-        override_string "" wl_docker_options default WL_DOCKER_OPTIONS
-        ;;
-    # RESERVED
-    WL_JOB_FILTER=*)
-        override_string "" wl_job_filter default WL_JOB_FILTER
-        ;;
-    # RESERVED
-    WL_EXPORT_LOGS=*)
-        override_string "" wl_export_logs default WL_EXPORT_LOGS
-        ;;
-    # RESERVED
-    WL_TIMEOUT=*)
-        override_string "" wl_timeout default WL_TIMEOUT
-        ;;
-    # RESERVED
     WL_REGISTRY_MAP=*)
         override_string "" wl_registry_map default WL_REGISTRY_MAP
-        ;;
-    # RESERVED
-    WL_TRACE_MODE=*)
-        override_string "" wl_trace_mode default WL_TRACE_MODE
-        ;;
-    # RESERVED
-    WL_CATEGORY=*)
-        override_string "" wl_category default WL_CATEGORY
         ;;
     esac
 done

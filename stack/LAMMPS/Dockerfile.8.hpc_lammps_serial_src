@@ -1,0 +1,47 @@
+# hpc_lammps_serial_src
+
+FROM oneapi_prune
+
+WORKDIR /
+
+ENV BASEDIR=hpc-lammps
+ENV BENCHDIR="lammps-avx512"
+ENV BENCHPATH="${BASEDIR}/${BENCHDIR}"
+ENV BINNAME="lammps_serial"
+ENV BINPATH="${BENCHPATH}/${BINNAME}"
+
+# Get the source code
+ARG LAMMPS_VER=23Jun2022_update4
+ARG LAMMPS_PACKAGE=https://github.com/lammps/lammps/archive/refs/tags/stable_${LAMMPS_VER}.zip
+RUN wget ${LAMMPS_PACKAGE} && \
+    unzip stable_${LAMMPS_VER}.zip -d ${BASEDIR} && \
+    cd ${BASEDIR} && \
+    ln -s lammps-stable_${LAMMPS_VER} lammps
+
+# Build code
+SHELL ["/bin/bash", "-c"]
+RUN source ${SETVARS} intel64 && \
+    cd ${BASEDIR}/lammps/src && \
+    make \
+        yes-asphere \
+        yes-class2 \
+        yes-dpd-basic \
+        yes-kspace \
+        yes-manybody \
+        yes-misc \
+        yes-molecule \
+        yes-opt \
+        yes-replica \
+        yes-rigid \
+        && \
+    make -j serial
+
+# Collect models and data files
+RUN mkdir -p ${BENCHPATH} && \
+    cp -rfL ${BASEDIR}/lammps/src/lmp_serial ${BINPATH} && \
+    cp -rfL ${BASEDIR}/lammps/bench/POTENTIALS/* ${BENCHPATH} && \
+    cp -rfL ${BASEDIR}/lammps/bench/Cu_u3.eam ${BENCHPATH} && \
+    cp -rfL ${BASEDIR}/lammps/bench/*.rhodo ${BENCHPATH}
+
+# Edit certain model files
+RUN find ${BENCHPATH} -name 'in.*' -execdir sed -i 's:\${root}.*/::g' '{}' ';'

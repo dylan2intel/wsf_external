@@ -1,0 +1,28 @@
+# dlrm-pytorch-benchmark
+
+ARG OS_VER="22.04"
+ARG OS_IMAGE="ubuntu"
+
+FROM ${OS_IMAGE}:${OS_VER} as build
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt -o Acquire::Check-Date=false update && \
+    apt install -y wget git
+
+ARG IntelAI_BENCHMARK_VER="168256a"
+ARG IntelAI_BENCHMARK_REPO="https://github.com/IntelAI/models"
+
+# Install model zoo benchmark scripts
+COPY ./patches/dlrm_s_pytorch.patch /tmp/
+
+RUN cd / && \
+    git clone -b pytorch-r2.0-models ${IntelAI_BENCHMARK_REPO} && \
+    cd models && \
+    git reset ${IntelAI_MODELS_VER} && \
+    cd models/recommendation/pytorch/dlrm/product && \
+    patch dlrm_s_pytorch.py /tmp/dlrm_s_pytorch.patch
+
+FROM scratch
+
+COPY --from=build /models/ /models/

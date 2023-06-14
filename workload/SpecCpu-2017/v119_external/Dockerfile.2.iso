@@ -1,0 +1,30 @@
+## speccpu-2017-v119-base-nda
+
+ARG OS_VER=22.04
+ARG OS_IMAGE=ubuntu
+
+FROM --platform=linux/amd64 ${OS_IMAGE}:${OS_VER} as build
+
+RUN apt-get update && apt-get install -y p7zip-full wget
+
+ARG SPEC2017_ISO_VER=1.1.9
+
+# SPEC_CPU_PKG the file containing the Speccpu binaries packaged as a iso file
+ARG SPEC_CPU_PKG=${SPEC_CPU_PKG:-cpu2017-${SPEC2017_ISO_VER}.iso}
+
+ADD ${SPEC_CPU_PKG} /spec.iso
+
+RUN mkdir /mnt/iso && \
+    cd /mnt/iso && \
+    7z x /spec.iso && \
+    find . -type f -exec chmod a+rx {} \;
+
+FROM ${OS_IMAGE}:${OS_VER}
+
+RUN  apt-get update && apt-get install -y wget libnsl2 xz-utils
+COPY --from=build /mnt/iso/ /mnt/iso/
+
+RUN mkdir /opt/spec2017 && \
+    cd /mnt/iso && \
+    sed -i 's|runcpu --test|echo --test|' install.sh && \
+    echo "yes" | ./install.sh -d /opt/spec2017

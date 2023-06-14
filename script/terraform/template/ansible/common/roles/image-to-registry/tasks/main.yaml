@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
     - name: setup port forwarding
       shell: "ssh -p {{ ansible_port | default(22) }} {{ ansible_user }}@{{ ansible_host }} -fNL {{ local_registry_url }}:{{ k8s_remote_registry_url }} -i {{ ansible_private_key_file }} > /dev/null 2>&1"

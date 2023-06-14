@@ -1,0 +1,37 @@
+# bertlarge-tensorflow-xeon-public-model
+
+ARG OS_VER="22.04"
+ARG OS_IMAGE="ubuntu"
+FROM ${OS_IMAGE}:${OS_VER} as build
+
+RUN apt -o Acquire::Check-Date=false update && \
+    DEBIAN_FRONTEND=noninteractive && \
+    apt install -y wget unzip
+
+RUN mkdir /model
+
+WORKDIR /model
+
+# Download FP32 and BFloat model files
+ARG FP32_MODEL_VER="2_10_0"
+ARG FP32_MODEL_REPO="https://storage.googleapis.com/intel-optimized-tensorflow/models/${FP32_MODEL_VER}/fp32_bert_squad.pb"
+RUN wget ${FP32_MODEL_REPO}
+
+ARG BF16_MODEL_VER="2_10_0"
+ARG BF16_MODEL_REPO="https://storage.googleapis.com/intel-optimized-tensorflow/models/${BF16_MODEL_VER}/optimized_bf16_bert.pb"
+RUN wget ${BF16_MODEL_REPO}
+
+ARG INT8_MODEL_VER="2_10_0"
+ARG INT8_MODEL_REPO="https://storage.googleapis.com/intel-optimized-tensorflow/models/${INT8_MODEL_VER}/per_channel_opt_int8_bf16_bert.pb"
+RUN wget ${INT8_MODEL_REPO}
+
+# Download Checkpoints file
+ARG CHECKPOINT_VER="v1_8"
+ARG CHECKPOINT_REPO="https://storage.googleapis.com/intel-optimized-tensorflow/models/${CHECKPOINT_VER}/bert_large_checkpoints.zip"
+RUN wget ${CHECKPOINT_REPO} && \
+    unzip bert_large_checkpoints.zip && \
+    rm -rf bert_large_checkpoints.zip
+
+# construct the final image
+FROM scratch
+COPY --from=build /model /model

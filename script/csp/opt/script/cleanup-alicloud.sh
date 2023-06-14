@@ -1,8 +1,14 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 . "$(dirname "$0")"/cleanup-common.sh
 
 read_regions alicloud
+has_image=0
 for regionres in "${REGIONS[@]}"; do
     region=$(echo ${regionres/,*/} | cut -f1-2 -d-)
     echo "region: $region"
@@ -67,8 +73,12 @@ for regionres in "${REGIONS[@]}"; do
             echo "Scanning images..."
             for image in $(aliyun ecs DescribeImages --RegionId $region $rg --PageSize=100 | jq ".Images.Image[] | select(.Tags.Tag[].TagValue | test(\"$OWNER\")) | .ImageId" 2>/dev/null | tr -d '"'); do
                 echo "image: $image"
-                resources+=($image)
-                (set -x; aliyun ecs DeleteImage --RegionId $region --ImageId $image --Force=true)
+                if [[ "$@" = *"--images"* ]]; then
+                    resources+=($image)
+                    (set -x; aliyun ecs DeleteImage --RegionId $region --ImageId $image --Force=true)
+                else
+                    has_image=1
+                fi
             done
 
             echo
@@ -83,4 +93,10 @@ for regionres in "${REGIONS[@]}"; do
         [ "${#resources[@]}" -eq 0 ] && break
     done
 done
-delete_regions alicloud
+
+if [ $has_image -eq 1 ]; then
+    echo "VM images are left untouched."
+    echo "Use 'cleanup --images' to clean up VM images"
+else
+    delete_regions alicloud
+fi

@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 resource "alicloud_ecs_key_pair" "default" {
   key_pair_name = replace("wsf-${var.job_id}", "-", "_")

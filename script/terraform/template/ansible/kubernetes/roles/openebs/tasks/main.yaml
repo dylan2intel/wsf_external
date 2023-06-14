@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 - name: detect if openebs should be installed or not
   command: "grep -q -F PersistentVolumeClaim {{ wl_logs_dir }}/kubernetes-config.yaml"

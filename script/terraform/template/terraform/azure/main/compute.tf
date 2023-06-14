@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 resource "azurerm_linux_virtual_machine" "default" {
   for_each = {
     for k,v in local.vms : k => v if replace(v.os_type,"windows","")==v.os_type

@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 resource "tencentcloud_key_pair" "default" {
   key_name   = substr(replace("wsf-${var.job_id}", "-", "_"), 0, 25)

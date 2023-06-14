@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 define(`stressNg', `
 ifelse(MONGO_DISK_DATABASE_ACCESS,true,`dnl
 apiVersion: batch/v1

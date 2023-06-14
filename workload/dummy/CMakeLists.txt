@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # CMakeLists.txt is the place to manage test cases. Think of a test case as certain 
 # combination of configurable parameters of a workload. You need to configure at 
@@ -8,7 +13,7 @@
 # test cases as needed.  
 
 # As a prerequisite to the workload build and test. You can test certain conditions
-# such as repository access permissions and license agreement. See doc/cmakelists.txt
+# such as repository access permissions and license agreement. See doc/developer-guide/component-design/cmakelists.md
 # for full documentation. The simple dummy workload does not have such prerequisite.   
 
 # It is recommendded to condition your workload build on the supported platforms.
@@ -18,7 +23,7 @@ if(" ICX " MATCHES " ${PLATFORM} ")
     # The add_workload function defines a workload. The workload name must be unique 
     # and do not have special characters except _. You can specify additional 
     # constraints as additional parameters such as license constraints and platform 
-    # constraints. See doc/cmakelists.txt.md for details. 
+    # constraints. See doc/developer-guide/component-design/cmakelists.md for details.
     add_workload("dummy")
 
     # The add_testcase function adds a test case, which will be executed through

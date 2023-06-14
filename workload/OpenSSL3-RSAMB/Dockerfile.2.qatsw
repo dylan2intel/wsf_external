@@ -1,0 +1,11 @@
+# openssl3-rsamb-qat-sw
+
+ARG RELEASE
+
+FROM qatsw-crypto-base-ssl3-ubuntu${RELEASE}
+
+COPY script/run_test.sh /
+RUN  mkfifo /export-logs
+CMD  (/run_test.sh; echo $? > status) 2>&1 | tee output.logs && \
+     tar cf /export-logs status output.logs && \
+     sleep infinity

@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # ######################################
 # Script that configure's Specjbb and JVM runtime options, from user input and underlying containers node capabilities

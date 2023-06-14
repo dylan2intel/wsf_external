@@ -1,0 +1,33 @@
+# oneapi_prune
+
+#FROM intel/oneapi-hpckit AS build
+ARG HPCKIT_IMAGE="intel/oneapi-hpckit"
+ARG HPCKIT_VER="2023.1.0-devel"
+ARG OS_VER="22.04"
+ARG OS_IMAGE="ubuntu"
+FROM ${HPCKIT_IMAGE}:${HPCKIT_VER}-${OS_IMAGE}${OS_VER} as build
+
+# Purge extraneous oneAPI files
+RUN rm -rf \
+        /opt/intel/oneapi/intelpython \
+        /opt/intel/oneapi/clck \
+        /opt/intel/oneapi/ipp \
+        /opt/intel/oneapi/dal \
+        /opt/intel/oneapi/vtune \
+        /opt/intel/oneapi/dnnl \
+        /opt/intel/oneapi/advisor \
+        /opt/intel/oneapi/ippcp \
+        /opt/intel/oneapi/conda_channel \
+        /opt/intel/oneapi/ccl \
+        /opt/intel/oneapi/inspector \
+        /opt/intel/attic
+
+FROM ${OS_IMAGE}:${OS_VER}
+
+COPY --from=build /opt/intel/oneapi/ /opt/intel/oneapi/
+
+RUN apt-get -y update && \
+    apt-get install build-essential -y && \
+    apt-get install wget findutils numactl unzip -y
+
+ENV SETVARS="/opt/intel/oneapi/setvars.sh"

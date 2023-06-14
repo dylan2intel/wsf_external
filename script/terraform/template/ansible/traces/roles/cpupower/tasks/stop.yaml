@@ -1,7 +1,14 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 - name: "Stop cpupower on {{ trace_node.1 }}"
   shell:
-    cmd: "kill $(cat /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.pid)"
+    cmd: |
+      kill $(cat /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.pid)
+      date -Ins > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.stop
     executable: /bin/bash
   become: yes
   delegate_to: "{{ trace_node.1 }}"

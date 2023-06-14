@@ -1,0 +1,20 @@
+# distilbert-pytorch-xeon-public-benchmark
+
+ARG OS_VER="22.04"
+ARG OS_IMAGE="ubuntu"
+FROM ${OS_IMAGE}:${OS_VER} as build
+
+RUN apt update && apt install -y git
+
+RUN mkdir -p /home/workspace
+WORKDIR /home/workspace
+
+ARG IntelAI_MODELS_VER="168256a"
+ARG IntelAI_MODELS_REPO="https://github.com/IntelAI/models"
+RUN git clone -b pytorch-r2.0-models ${IntelAI_MODELS_REPO} && \
+    cd models && \
+    git reset --hard ${IntelAI_MODELS_VER}
+
+# construct the final image
+FROM scratch
+COPY --from=build /home/workspace /home/workspace

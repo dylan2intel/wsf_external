@@ -30,7 +30,7 @@ ENV FP32_MODEL_DIR="/home/workspace/model/resnet50_v1.pb"
 ENV INT8_MODEL_DIR="/home/workspace/model/resnet50v1_5_int8_pretrained_model.pb"
 ENV BF16_MODEL_DIR="/home/workspace/model/resnet50_v1_5_bfloat16.pb"
 
-ADD run_test.sh .
+COPY run_test.sh .
 
 RUN mkfifo /export-logs
 

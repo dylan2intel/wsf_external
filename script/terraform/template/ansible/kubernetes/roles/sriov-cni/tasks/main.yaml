@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 ---
 - name: check current golang version
   shell: "set -o pipefail && /usr/local/go/bin/go version|sed -e 's/go version go//g'|cut -d' ' -f1"

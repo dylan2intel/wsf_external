@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 CONFIG=${1:-qat-rsa}
 WORKLOAD=${WORKLOAD:-openssl_rsamb_qatsw}

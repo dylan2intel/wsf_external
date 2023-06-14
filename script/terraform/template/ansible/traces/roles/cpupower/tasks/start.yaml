@@ -1,7 +1,13 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
   - name: "Start cpupower on {{ trace_node.1 }}"
     shell:
       cmd: |
+        date -Ins > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.start
         while true; do
           date -Ins >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.logs
           cpupower monitor {{ cpupower_options }} >> /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-cpupower.logs

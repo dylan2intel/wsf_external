@@ -118,7 +118,7 @@ The workload makes sensible calculations based on user input and machine details
 
 ### Customize Configurations
 
-It is possible to specify a global test configuration file to overwrite any configuration parameter of a test case: [`Customize Configurations`](../../doc/ctest.md#customize-configurations). For typical AWS instances, here are some recommended configurations defined in this [path](test_config_file).
+It is possible to specify a global test configuration file to overwrite any configuration parameter of a test case: [`Customize Configurations`](../../doc/user-guide/executing-workload/ctest.md#customize-configurations). For typical AWS instances, here are some recommended configurations defined in this [path](test_config_file).
 To reproduce the performance data of on-premises platform, which is shown in wsf performance report, the configurations are also defined [`icx`](test_config_file/test-config-icx8358.yaml) & [`spr`](test_config_file/test-config-spr.yaml).
 To run test cases with customize configurations, you can set the value of exposed parameters in [`test-config-customize.yaml`](test_config_file/test-config-customize.yaml) and run with below command line:
 

@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 locals {
   os_name_regex = {
@@ -50,7 +55,7 @@ data "alicloud_market_products" "products" {
 
 data "alicloud_market_product" "default" {
   for_each = {
-    for k,v in data.alicloud_market_products.products : k => v
+    for k,v in data.alicloud_market_products.products : k => v.products
       if length(v.products)>0
   }
   product_code = each.value.0.code

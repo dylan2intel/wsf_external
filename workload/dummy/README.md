@@ -39,5 +39,5 @@ The following KPI is defined:
 
 ### See Also
 
-- [Workload Elements](../../doc/workload.md)   
+- [Workload Elements](../../doc/developer-guide/component-design/workload.md)
 

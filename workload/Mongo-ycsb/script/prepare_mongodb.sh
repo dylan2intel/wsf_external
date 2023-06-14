@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # irq balance should be done on m6i.32xlarge
 if [[ "${m_network_rps_tune_enable}" = true ]]

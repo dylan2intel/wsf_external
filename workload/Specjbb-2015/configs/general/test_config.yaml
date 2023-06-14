@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 # For Alicloud use specific tier multipler(s) and then allow the following expression [*_specjbb_2015_openjdk_multijvm*pkm] to override the rest of the values
 *_alicloud_specjbb_2015_openjdk_multijvm*pkm:
   SPECJBB_DEFAULT_T1_T2_T3_MULTIPLIERS: "2,1,1"

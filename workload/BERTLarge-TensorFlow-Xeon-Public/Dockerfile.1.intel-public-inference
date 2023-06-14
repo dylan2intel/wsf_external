@@ -1,0 +1,31 @@
+# bertlarge-tensorflow-xeon-public-inference
+
+ARG RELEASE
+
+FROM ai-common-img${RELEASE} as ai_common
+FROM bertlarge-tensorflow-xeon-public-model${RELEASE} as model
+FROM bertlarge-tensorflow-xeon-public-benchmark${RELEASE} as benchmark
+FROM bertlarge-tensorflow-xeon-public-dataset${RELEASE} as inference_data
+
+FROM tensorflow-intel-public${RELEASE}
+
+SHELL ["/bin/bash", "-c"]
+
+COPY --from=model /model /home/model
+COPY --from=inference_data /dataset /home/dataset
+COPY --from=benchmark /home/workspace /home/workspace
+COPY --from=ai_common /home/ai_common /home/workspace/ai_common
+
+ENV DATASET_DIR=/home/dataset/wwm_uncased_L-24_H-1024_A-16
+ENV CHECKPOINT_DIR=/home/model/bert_large_checkpoints
+
+WORKDIR /home/workspace
+
+COPY run_test.sh /home/workspace
+
+RUN mkfifo /export-logs
+
+CMD ( ./run_test.sh; \
+    echo $? > status) 2>&1 | tee benchmark_${MODE}_${TOPOLOGY}_${PRECISION}_${FUNCTION}_${DATA_TYPE}_$(date +"%m-%d-%y-%H-%M-%S").log && \
+    tar cf /export-logs status $(find . -maxdepth 1 -name "*.log") && \
+    sleep infinity

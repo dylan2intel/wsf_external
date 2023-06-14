@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # default settings
 LOGSDIRH="${LOGSDIRH:-$(pwd)}"
@@ -9,15 +14,19 @@ HELM_CONFIG="${HELM_CONFIG:-$SOURCEROOT/helm}"
 CLUSTER_CONFIG_M4="${CLUSTER_CONFIG_M4:-$SOURCEROOT/cluster-config.yaml.m4}"
 CLUSTER_CONFIG_J2="${CLUSTER_CONFIG_J2:-$SOURCEROOT/cluster-config.yaml.j2}"
 CLUSTER_CONFIG="${CLUSTER_CONFIG:-$LOGSDIRH/cluster-config.yaml}"
+COMPOSE_CONFIG_M4="${COMPOSE_CONFIG_M4:-$SOURCEROOT/compose-config.yaml.m4}"
+COMPOSE_CONFIG_J2="${COMPOSE_CONFIG_J2:-$SOURCEROOT/compose-config.yaml.j2}"
+COMPOSE_CONFIG="${COMPOSE_CONFIG:-$LOGSDIRH/compose-config.yaml}"
 JOB_FILTER="${JOB_FILTER:-job-name=benchmark}"
 EXPORT_LOGS="${EXPORT_LOGS:-/export-logs}"
 HELM_OPTIONS="${HELM_OPTIONS:-${RECONFIG_OPTIONS//-D/--set }}"
 J2_OPTIONS="${J2_OPTIONS:-${RECONFIG_OPTIONS//-D/-e }}"
+WORKLOAD_CONFIG="$LOGSDIRH/workload-config.yaml"
 
 # OWNER and NAMESPACE
-eval "options=\"\$${BACKEND^^}_OPTIONS\""
-if [[ "$options $CTESTSH_OPTIONS" = *--owner=* ]]; then
-    export OWNER="$(echo "x$options $CTESTSH_OPTIONS" | sed 's|.*--owner=\([^ ]*\).*|\1|' | tr 'A-Z' 'a-z' | tr -c -d 'a-z0-9-')"
+eval "options=\"\$${BACKEND^^}_OPTIONS \$${BACKEND^^}_CMAKE_OPTIONS $CTESTSH_OPTIONS\""
+if [[ "$options" = *--owner=* ]]; then
+    export OWNER="$(echo "x$options" | sed 's|.*--owner=\([^ ]*\).*|\1|' | tr 'A-Z' 'a-z' | tr -c -d 'a-z0-9-')"
 else
     export OWNER="$( (git config user.name || id -un) 2> /dev/null | tr 'A-Z' 'a-z' | tr -c -d 'a-z0-9-')"
 fi
@@ -97,6 +106,20 @@ test_pass_fail () {
   return $ret
 }
 
+rebuild_compose_config () {
+    if [ -r "${COMPOSE_CONFIG_M4%.m4}" ]; then
+        cp -f "${COMPOSE_CONFIG_M4%.m4}" "$COMPOSE_CONFIG"
+        return 0
+    elif [ -r "$COMPOSE_CONFIG_M4" ]; then
+        rebuild_config "$COMPOSE_CONFIG_M4" "$COMPOSE_CONFIG"
+        return 0
+    elif [ -r "$COMPOSE_CONFIG_J2" ]; then
+        rebuild_config_j2 "$COMPOSE_CONFIG_J2" "$COMPOSE_CONFIG"
+        return 0
+    fi
+    return 1
+}
+
 rebuild_kubernetes_config () {
     if [ -r "${KUBERNETES_CONFIG_M4%.m4}" ]; then
         cp -f "${KUBERNETES_CONFIG_M4%.m4}" "$KUBERENTES_CONFIG"
@@ -138,37 +161,45 @@ rebuild_kubernetes_config () {
     return 1
 }
 
-dataset_images () {
-    if [ ${#DOCKER_DATASET[@]} -gt 0 ]; then
-        for ds in "${DOCKER_DATASET[@]}"; do
-            image_name "$ds"
-        done
-    elif [ -n "$DOCKER_DATASET" ]; then
-        image_name "$DOCKER_DATASET"
-    fi
-}
-
-# convert arrays to strings
-convert_workload_params () {
-    WORKLOAD_PARAMS="$(for kv in "${WORKLOAD_PARAMS[@]}"; do
-                           eval "kv=\"$kv:\${$kv}\""
-                           echo "$kv"
-                       done | tr '\n' ';'
-                      )"
-    WORKLOAD_PARAMS="${WORKLOAD_PARAMS%;}"
-    [ "${CTESTSH_EVENT_TRACE_PARAMS-undefined}" = "undefined" ] ||  EVENT_TRACE_PARAMS="$CTESTSH_EVENT_TRACE_PARAMS"
-}
-
-save_script_args () {
-    echo "script_args: \"$SCRIPT_ARGS\"" >> "$LOGSDIRH/workload-config.yaml"
-}
-
 save_workload_params () {
-    echo "tunables: \"$WORKLOAD_PARAMS;testcase:$TESTCASE$TESTCASE_CUSTOMIZED\"" >> "$LOGSDIRH/workload-config.yaml"
-    echo "bom: \"$WORKLOAD_BOM\"" >> "$LOGSDIRH/workload-config.yaml"
-    eval "bk_opts=\"\$${BACKEND^^}_OPTIONS\""
+    echo "script_args: \"$SCRIPT_ARGS\""
+    eval "bk_opts=\"\$${BACKEND^^}$([ "$BACKEND" != "docker" ] || echo _CMAKE)_OPTIONS\""
     eval "bk_sut=\"\$${BACKEND^^}_SUT\""
-    echo "cmake_cmdline: \"cmake -DPLATFORM=$PLATFORM -DREGISTRY=$REGISTRY -DREGISTRY_AUTH=$REGISTRY_AUTH -DRELEASE=$RELEASE -DTIMEOUT=$TIMEOUT -DBENCHMARK='$BENCHMARK' -DBACKEND=$BACKEND -D${BACKEND^^}_OPTIONS='$bk_opts' -D${BACKEND^^}_SUT='$bk_sut' -DSPOT_INSTANCE=$SPOT_INSTANCE\"" >> "$LOGSDIRH/workload-config.yaml"
+    echo "cmake_cmdline: \"cmake -DPLATFORM=$PLATFORM -DREGISTRY=$REGISTRY -DREGISTRY_AUTH=$REGISTRY_AUTH -DRELEASE=$RELEASE -DTIMEOUT=$TIMEOUT -DBENCHMARK='$BENCHMARK' -DBACKEND=$BACKEND -D${BACKEND^^}_OPTIONS='$bk_opts' -D${BACKEND^^}_SUT='$bk_sut' -DSPOT_INSTANCE=$SPOT_INSTANCE\""
+    echo "platform: \"$PLATFORM\""
+    echo "registry: \"$REGISTRY\""
+    echo "release: \"$RELEASE\""
+    echo "timeout: \"$TIMEOUT\""
+    echo "benchmark: \"$BENCHMARK\""
+    echo "backend: \"$BACKEND\""
+    echo "${BACKEND,,}_options: \"$bk_opts\""
+    echo "${BACKEND,,}_sut: \"$bk_sut\""
+    echo "spot_instance: \"$SPOT_INSTANCE\""
+    echo "name: \"$WORKLOAD\""
+    echo "category: \"$(sed -n '/^.*Category:\s*[`].*[`]\s*$/{s/.*[`]\(.*\)[`]\s*$/\1/;p}' "$SOURCEROOT"/README.md | tail -n1)\""
+    echo "export_logs: \"$EXPORT_LOGS\""
+
+    [ "${CTESTSH_EVENT_TRACE_PARAMS-undefined}" = "undefined" ] ||  EVENT_TRACE_PARAMS="$CTESTSH_EVENT_TRACE_PARAMS"
+    echo "trace_mode: \"${EVENT_TRACE_PARAMS//%20/ }\""
+    echo "job_filter: \"$JOB_FILTER\""
+    echo "timeout: \"$TIMEOUT\""
+
+    echo "tunables:"
+    for k in "${WORKLOAD_PARAMS[@]}"; do
+        eval "v=\"\${$k}\""
+        echo "  $k: \"${v//%20/ }\""
+    done
+    echo "  testcase: \"$TESTCASE$TESTCASE_CUSTOMIZED\""
+
+    if [ -n "$DOCKER_IMAGE" ]; then
+        echo "docker_image: \"$(image_name "$DOCKER_IMAGE")\""
+        echo "docker_options: \"${DOCKER_OPTIONS//%20/ }\""
+    fi
+
+    echo "bom:"
+    for line in $("$SOURCEROOT"/build.sh --bom | grep -E '^ARG ' | sed 's/^ARG //'); do
+        echo "  ${line/=*/}: \"${line/*=/}\""
+    done
 }
 
 save_kpish () {
@@ -179,8 +210,7 @@ save_kpish () {
 }
 
 save_git_history () {
-    eval "bk_opts=\"\$${BACKEND^^}_OPTIONS\""
-    if [[ "$bk_opts$CTESTSH_OPTIONS" != *"--dry-run"* ]]; then
+    if [[ "$CTESTSH_OPTIONS " != *"--dry-run "* ]]; then
         mkdir -p "$LOGSDIRH/git-history"
         git show HEAD | sed  '/^diff/{q}' > "$LOGSDIRH/git-history/HEAD" || true
         git diff HEAD > "$LOGSDIRH/git-history/DIFF" || true
@@ -211,12 +241,9 @@ if [ -z "$CTESTSH_OPTIONS" ]; then
     exit 3
 fi
 
-WORKLOAD_BOM="$("$SOURCEROOT"/build.sh --bom | grep -E '^ARG' | sed 's/^ARG //' | tr '=\n' ':;' | sed 's/;$//')"
 if [ -r "$PROJECTROOT/script/${BACKEND}/validate.sh" ]; then
     save_kpish
-    save_script_args
-    convert_workload_params
-    save_workload_params
+    save_workload_params > "$WORKLOAD_CONFIG"
     save_git_history
     if [ -r "$CLUSTER_CONFIG_M4" ]; then
         rebuild_config "$CLUSTER_CONFIG_M4" "$CLUSTER_CONFIG"

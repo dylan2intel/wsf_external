@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 add_custom_target(build_terraform COMMAND bash -c "PLATFORM=X64 IMAGEARCH=linux/amd64 BACKEND=${BACKEND} RELEASE=${RELEASE} REGISTRY=${REGISTRY} ${BACKEND_ENVS} PROJECTROOT='${PROJECT_SOURCE_DIR}' SOURCEROOT='${CMAKE_CURRENT_SOURCE_DIR}' BUILDROOT='${CMAKE_BINARY_DIR}' '${CMAKE_CURRENT_SOURCE_DIR}/build.sh' ${BUILDSH_OPTIONS}")
 

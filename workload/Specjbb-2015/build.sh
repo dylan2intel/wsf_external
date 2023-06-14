@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 SPEC_JBB_VER="${SPEC_JBB_VER:-1.03}"
 SPEC_JBB_PKG="${SPEC_JBB_PKG}"
 

@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 locals {
   subnet_cidr_block = cidrsubnet(var.vpc_cidr_block, 8, 1)

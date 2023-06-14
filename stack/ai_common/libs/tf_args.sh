@@ -1,22 +1,30 @@
 #! /bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # tf common args
 function tf_common_args() {
 
-    # # Use training, inference dataset
-    # if [[ "$PRECISION" =~ "fp32" ]]; then
-    #     INPUT_PRECISION=fp32
-    # elif [[ "$PRECISION" =~ "int8" ]]; then
-    #     INPUT_PRECISION=int8
-    # elif [[ "$PRECISION" =~ "bfloat16" ]]; then
-    #     INPUT_PRECISION=bfloat16
-    # else
-    #     echo "Not support precision ${INPUT_PRECISION}"
-    #     exit 1
-    # fi
+    # Use training, inference dataset
+    if [[ "$PRECISION" =~ "fp32" ]]; then
+        INPUT_PRECISION=fp32
+        MODEL_DIR=/home/model/fp32_bert_squad.pb
+    elif [[ "$PRECISION" =~ "int8" ]]; then
+        INPUT_PRECISION=int8
+        MODEL_DIR=/home/model/per_channel_opt_int8_bf16_bert.pb
+    elif [[ "$PRECISION" =~ "bfloat16" ]]; then
+        INPUT_PRECISION=bfloat16
+        MODEL_DIR=/home/model/optimized_bf16_bert.pb
+    else
+        echo "Not support precision ${INPUT_PRECISION}"
+        exit 1
+    fi
 
     ARGS="--model-name=${TOPOLOGY} \
-          --precision ${PRECISION} \
+          --precision ${INPUT_PRECISION} \
           --mode=${FUNCTION} \
           --framework tensorflow"
 
@@ -32,9 +40,8 @@ function tf_common_args() {
             ARGS+=" --accuracy-only"
         else
             ARGS+=" --benchmark-only \
-                    --verbose \
-                    --num-intra-threads=${INTRA_THREADS} \
-                    --num-inter-threads=${INTER_THREADS}"
+                    --num-intra-threads ${CORES_PER_INSTANCE} \
+                    --num-inter-threads 1"
         fi
         if [ "$TOPOLOGY" == "bert_large" ] || [ "$TOPOLOGY" == "resnet50v1_5" ]; then
             ARGS+=" --steps=${STEPS}"
@@ -155,6 +162,7 @@ function bertlarge_tf_args() {
                 --DEBIAN_FRONTEND=noninteractive \
                 --init_checkpoint=model.ckpt-3649 \
                 --infer-option=SQuAD \
+                --max-seq-length=${MAX_SEQ_LENGTH} \
                 --experimental-gelu=True"
     elif [ "$FUNCTION" == "training" ]; then
         ARGS+=" --num-train-steps=20 \
@@ -165,11 +173,11 @@ function bertlarge_tf_args() {
                 --profile=False \
                 --learning-rate=4e-5 \
                 --max-predictions=76 \
-                --max-seq-length=512 \
+                --max-seq-length=${MAX_SEQ_LENGTH} \
                 --warmup-steps=0 \
                 --save-checkpoints_steps=1000 \
-                --config-file=${DATASET_DIR}/wwm_uncased_L-24_H-1024_A-16/bert_config.json \
-                --init-checkpoint=${DATASET_DIR}/wwm_uncased_L-24_H-1024_A-16/bert_model.ckpt \
+                --config-file=${DATASET_DIR}/bert_config.json \
+                --init-checkpoint=${DATASET_DIR}/bert_model.ckpt \
                 --input-file=${DATASET_DIR}/tf_records/part-00430-of-00500 \
                 --experimental-gelu=True \
                 --do-lower-case=False"

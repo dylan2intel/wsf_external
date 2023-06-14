@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # The add_workload function defines a workload. The workload name must be unique
 # and do not have special characters except _. You can specify additional

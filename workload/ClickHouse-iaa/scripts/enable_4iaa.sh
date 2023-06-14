@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 accel-config load-config -c ./accel-iaa-4d1g8e.conf
 accel-config enable-device iax1
 accel-config enable-wq iax1/wq1.0

@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 - name: remove kubeadm, kubelet, and kubectl
   apt:
@@ -36,7 +41,7 @@
   delay: 10
 
 - name: deamor the k8s GPG key
-  command: gpg --dearmor -o /usr/share/keyrings/k8s.gpg /usr/share/keyrings/k8s.gpg.origin
+  command: gpg --yes --dearmor -o /usr/share/keyrings/k8s.gpg /usr/share/keyrings/k8s.gpg.origin
   become: true
 
 - name: add k8s repository to apt

@@ -1,0 +1,36 @@
+--- b.py	2023-05-08 04:11:50.436736944 +0000
++++ a.py	2023-05-08 05:00:47.014458051 +0000
+@@ -1246,22 +1246,8 @@
+     nbatches = args.num_batches if args.num_batches > 0 else len(train_ld)
+     nbatches_test = len(test_ld)
+
+-    ln_emb = train_data.counts
+-    # enforce maximum limit on number of vectors per embedding
+-    if args.max_ind_range > 0:
+-        ln_emb = np.array(
+-            list(
+-                map(
+-                    lambda x: x if x < args.max_ind_range else args.max_ind_range,
+-                    ln_emb,
+-                )
+-            )
+-        )
+-    else:
+-        ln_emb = np.array(ln_emb)
+-    m_den = train_data.m_den
+-    ln_bot[0] = m_den
+-
++    m_den = ln_bot[0]
++    ln_emb = np.fromstring(args.arch_embedding_size, dtype=int, sep='-')
+     args.ln_emb = ln_emb.tolist()
+
+     ### parse command line arguments ###
+@@ -1393,7 +1379,7 @@
+     global data_buffer
+     data_buffer = buffer_num * [None]
+     global data_iter
+-    data_iter = iter(train_ld)
++    data_iter = iter(test_ld) if args.inference_only else iter(train_ld)
+     buffer_num = buffer_num if buffer_num <= nbatches else nbatches
+     # data_load_begin = time.time()
+     load_data(data_iter, buffer_num, args.bf16)

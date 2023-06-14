@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 #WORKLOAD_FILE: usually, we use 90Read10Update
 #THREADS: threads number of ycsb
 #OPERATION_COUNT: operations will be done by ycsb

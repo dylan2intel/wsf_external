@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 resource "aws_key_pair" "default" {
   key_name   = "wsf-${var.job_id}-key"
   public_key = var.ssh_pub_key
@@ -24,6 +29,7 @@ resource "aws_instance" "default" {
   depends_on = [aws_internet_gateway.default]
 
   user_data_base64 = "${data.template_cloudinit_config.default[each.key].rendered}"
+  instance_initiated_shutdown_behavior = "terminate"
 
   root_block_device {
     tags = {
@@ -72,6 +78,7 @@ resource "aws_spot_instance_request" "default" {
   depends_on = [aws_internet_gateway.default]
 
   user_data_base64 = "${data.template_cloudinit_config.default[each.key].rendered}"
+  instance_initiated_shutdown_behavior = "terminate"
 
   root_block_device {
     tags = {

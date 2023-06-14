@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 include(config.m4)
 
 # You can specify the Kubernetes deployment in the format of a kubernetes-config.yaml.m4

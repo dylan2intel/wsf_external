@@ -1,40 +1,17 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 ---
 - block:
   - name: check QAT Device Plugin status before installation
     command: "kubectl wait --for=condition=Ready pod --all -n {{ qatplugin_namespace }} --timeout 1s"
 
   rescue:
-  - name: Detect OS
-    shell: 
-      cmd: ". /etc/os-release; echo $ID"
-      executable: /bin/bash
-    register: os
-
-  - name: Install git on Debian.
-    apt:
-      name:
-        - git
-      state: present
-      update_cache: yes
-    register: aptrc
-    until: aptrc is success
-    retries: 10
-    delay: 10
-    become: true
-    when: os.stdout in ['ubuntu', 'debian']
-
-  - name: Install git on RedHat.
-    dnf:
-      name:
-        - git
-      state: present
-      update_cache: true
-    register: dnfrc
-    until: dnfrc is success
-    retries: 10
-    delay: 10
-    become: true
-    when: os.stdout in ['centos', 'fedora']
+  - name: install git
+    package:
+      name: git
 
   - name: delete qat-plugin namespace
     ignore_errors: true
@@ -53,6 +30,7 @@
     shell: |
       git clone --depth 1 {{ qatplugin_repository }} -b {{ qatplugin_release }} /tmp/{{ wl_namespace }}-qatplugin
       cd /tmp/{{ wl_namespace }}-qatplugin
+      sed -i '/imagePullPolicy: IfNotPresent/a \\        args: ["-allocation-policy", "balanced", "-max-num-devices", "{{ qatplugin_max_qat_devices }}"]' ./deployments/qat_plugin/base/intel-qat-plugin.yaml
       kubectl create -k deployments/qat_plugin/overlays/apparmor_unconfined -n {{ qatplugin_namespace }}
     args:
       executable: /bin/bash

@@ -1,4 +1,9 @@
 #! /bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 jemalloc_topology="maskrcnn bert_large distilbert_base"
 weight_sharing_topology="resnet50_v15 resnext101_32x16d bert_large distilbert_base"

@@ -68,7 +68,7 @@ The docker image for this workload is:
 * `tpcc-mysql` - Prebuilt image from official mysql (`mysql:8.0.26`)
     * required for all testcase:
         * kubernetes node with `HAS-SETUP-HUGEPAGE-2048kB-<your_hugepage_size>` label
-        * See also: [Hugepage Setup](../../doc/setup-hugepage.md)
+        * See also: [Hugepage Setup](../../doc/user-guide/preparing-infrastructure/setup-hugepage.md)
 
 This workload should be executed on Kubernetes with specific label (nodeSelector).
 Use this command to enable those capability & label:
@@ -132,7 +132,7 @@ ctest -R <testcase>
 ```
 
 ### KPI
-Run the [`list-kpi.sh`](../../doc/ctest.md#list-kpish) script to parse the KPIs from the validation logs. 
+Run the [`list-kpi.sh`](../../doc/user-guide/executing-workload/ctest.md#list-kpish) script to parse the KPIs from the validation logs.
 
 The expected output will be similar to this. Please note that the numbers might be slightly different. 
 Primary KPI is `Peak New Orders Per Minute (orders/min)` which has a * as prefix

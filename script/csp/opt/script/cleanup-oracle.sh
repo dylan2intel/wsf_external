@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 parse_key_value () {
   awk -v owner="$OWNER" -v key="$1" -v this="" '
@@ -103,8 +108,12 @@ scan_internet_gateway () {
 scan_compute_image () {
     for id in $(oci compute image list --region $region --compartment-id $compartment --all | parse_key_value '"id":'); do
         echo "compute image: $id"
-        (set -x; oci compute image delete --region $region --image-id $id --force)
-        resources+=("$id")
+        if [[ "$@" = *"--images"* ]]; then
+            (set -x; oci compute image delete --region $region --image-id $id --force)
+            resources+=("$id")
+        else
+            has_image=1
+        fi
     done
 }
 
@@ -135,6 +144,7 @@ scan_compute_instance () {
 
 read_regions oracle
 export -pf parse_key_value zone_to_region
+has_image=0
 for regionres in "${REGIONS[@]}"; do
     zone="${regionres/,*/}"
     region="$(zone_to_region "$zone")"
@@ -154,10 +164,16 @@ for regionres in "${REGIONS[@]}"; do
                 scan_internet_gateway
                 scan_subnet
                 scan_vcn
-                scan_compute_image
+                scan_compute_image $@
             done
             [ "${#resources[@]}" -eq 0 ] && break
         done
     fi
 done
-delete_regions oracle
+
+if [ $has_image -eq 1 ]; then
+    echo "VM images are left untouched."
+    echo "Use 'cleanup --images' to clean up VM images"
+else
+    delete_regions oracle
+fi

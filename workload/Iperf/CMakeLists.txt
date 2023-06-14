@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 if(" ICX " MATCHES " ${PLATFORM} ")
       foreach (IPERF_VER 2)
           add_workload("iperf${IPERF_VER}")

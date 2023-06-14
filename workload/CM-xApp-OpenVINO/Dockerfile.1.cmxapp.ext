@@ -1,0 +1,57 @@
+# syntax=docker/dockerfile:1
+# cm-xapp
+
+ARG GOLANG_VER="1.18.5-bullseye"
+ARG GOLANG_IMAGE=golang
+ARG OPENVINO_VER="2022.1.0"
+ARG OPENVINO_IMAGE="openvino/ubuntu20_runtime"
+
+FROM ${GOLANG_IMAGE}:${GOLANG_VER} AS go-builder
+WORKDIR /src
+
+COPY Connection-Management-xApp.tar.gz .
+RUN tar -xzvf Connection-Management-xApp.tar.gz && cd Connection-Management-xApp/ORAN_sim_ONF && make go-build
+
+FROM ${OPENVINO_IMAGE}:${OPENVINO_VER} AS python-builder
+ARG USERNAME=openvino
+ENV no_proxy=onos-topo,onos-e2t
+
+USER $USERNAME
+WORKDIR /home/$USERNAME/build
+ARG TENSORFLOW_VER=2.7.0
+ARG TENSORFLOW_REPO=pip
+ARG SCIPY_VER=1.7.2
+ARG SCIPY_REPO=pip
+ARG PYINSTALLER_VER=4.7
+ARG PYINSTALLER_REPO=pip
+ARG PROTOBUF_VER=3.19.0
+ARG PROTOBUF_REPO=pip
+RUN pip3 install tensorflow==${TENSORFLOW_VER} scipy==${SCIPY_VER} pyinstaller==${PYINSTALLER_VER} protobuf==${PROTOBUF_VER}
+
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/openvino_qvalue/openvino_qvalue.cpython-38-x86_64-linux-gnu.so \
+     /opt/intel/openvino/python/python3.8/openvino_qvalue.cpython-38-x86_64-linux-gnu.so
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/*.py ./
+
+RUN python3 -m PyInstaller --onefile xApp_ONF.py \
+--add-data=/opt/intel/openvino/runtime/lib/intel64/*:. \
+--add-data=/opt/intel/openvino/runtime/3rdparty/tbb/lib/*:. \
+--add-data=/opt/intel/openvino/python/python3.8/openvino:openvino \
+--add-data=/opt/intel/openvino/python/python3.8/openvino_qvalue.cpython-38-x86_64-linux-gnu.so:. \
+--add-data=/home/openvino/.local/lib/python3.8/site-packages/tensorflow/core/platform/_cpu_feature_guard.so:tensorflow/core/platform/
+
+FROM ${OPENVINO_IMAGE}:${OPENVINO_VER} AS final
+ENV no_proxy=onos-topo,onos-e2t
+USER root
+WORKDIR /cmxapp
+
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./csrc
+COPY --from=python-builder /home/openvino/build/dist/xApp_ONF ./
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/pkg/onos_sdk_client.so ./
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/weights.data ./
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/csrc/Qvalue_calc.so ./csrc/
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/OpenVINO/*.bin ./OpenVINO/
+COPY --from=go-builder /src/Connection-Management-xApp/ORAN_sim_ONF/OpenVINO/*.xml ./OpenVINO/
+COPY scripts/parse_log.py scripts/run_test.sh ./
+
+RUN mkfifo /export-logs
+CMD sleep infinity

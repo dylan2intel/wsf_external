@@ -1,7 +1,13 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
   - name: "Start iostat on {{ trace_node.1 }}"
     shell:
       cmd: |
+        date -Ins > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-iostat.start
         iostat {{ iostat_options }} > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-iostat.logs 2>&1 &
         echo $! > /tmp/{{ wl_namespace }}-{{ trace_node.1 }}-iostat.pid
         disown

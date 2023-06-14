@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 if [ ${#@} -lt 2 ]; then
   echo "Usage: [options] <user@controller-ip[:private-ip]> <user>@worker-ip[:private-ip] [<user>@worker-ip[:private_ip]...]"
@@ -56,8 +61,8 @@ done
 
 DIR="$( cd "$( dirname "$0" )" &> /dev/null && pwd )"
 cd "$DIR"
-./setup-ansible.sh
-./setup-sut-native.sh --port $ssh_port $(echo ${hosts[@]} | sed 's|:[^ ]*||g')
+./setup-ansible.sh || exit 3
+./setup-sut-native.sh --port $ssh_port $(echo ${hosts[@]} | sed 's|:[^ ]*||g') || exit 3
 
 controller=${hosts[0]}
 controller_hh="${controller/*@/}"

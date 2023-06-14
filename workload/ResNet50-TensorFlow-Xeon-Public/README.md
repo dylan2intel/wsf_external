@@ -60,10 +60,10 @@ or
 
 ### System Requirements
 
-Requires ~1TB of disk space available during runtime. See [AI Setup](../../doc/setup-ai.md) for more system setup instructions.
+Requires ~1TB of disk space available during runtime. See [AI Setup](../../doc/user-guide/preparing-infrastructure/setup-ai.md) for more system setup instructions.
 For latency mode, physical CPU number should be equal or larger than 4.
 
-To setup SGX, See [setup-gramine-sgx.md](../../doc/setup-gramine-sgx.md#node-labels) for more details.
+To setup SGX, See [setup-gramine-sgx.md](../../doc/user-guide/preparing-infrastructure/setup-gramine-sgx.md#node-labels) for more details.
 
 #### Downloading datasets
 
@@ -156,13 +156,10 @@ Performance report results summary for throughput tests (maximum samples per sec
 ### Index Info
 - Name: `ResNet-50, TensorFlow`
 - Category: `ML/DL/AI`
-- Platform: `GNR`, `SPR`, `ICX`, `SRF`, `EMR`, `GENOA`
+- Platform: `SPR`, `ICX`
 - Keywords: `AMX`, `TMUL`, `SGX`
 - Permission:
 
-### Validation Notes
-
-- Validated with release [`v22.53`](https://github.com/intel-innersource/applications.benchmarking.benchmark.platform-hero-features/releases/tag/v22.53) on `SPR`, `ICX`, `SPR_VM`, `SPR_GCP`, `ICX_AWS`, passed on platform `SPR`,`ICX`,`SPR_VM`,`SPR_GCP`,`ICX_AWS` .
 
 ### See Also
 

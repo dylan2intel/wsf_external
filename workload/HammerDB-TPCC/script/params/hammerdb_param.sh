@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 ### HammerDB settings
 export TPCC_NUM_WAREHOUSES=${TPCC_NUM_WAREHOUSES:-50} # default for xlarge case

@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 locals {
   sg_whitelist_cidr_blocks = compact(split("\n", file(var.proxy_ip_list)))

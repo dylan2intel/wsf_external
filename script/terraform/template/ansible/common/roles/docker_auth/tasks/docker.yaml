@@ -1,9 +1,16 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 ---
 - name: 'Find Home path'
   ansible.builtin.shell:
     cmd: "echo $HOME"
     executable: /bin/bash
   register: home
+  failed_when: false
+  become: false
 
 - name: 'Create docker auth path'
   ansible.builtin.file:
@@ -11,6 +18,7 @@
     mode: "0700"
     state: directory
   failed_when: false
+  become: false
 
 - name: 'Copy docker auth'
   ansible.builtin.copy:
@@ -19,4 +27,4 @@
     mode: preserve
     owner: "{{ ansible_user }}"
   failed_when: false
-  become: true
+  become: false

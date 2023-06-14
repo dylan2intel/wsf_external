@@ -1,0 +1,29 @@
+# bertlarge-tensorflow-xeon-public-dataset
+
+ARG OS_VER="22.04"
+ARG OS_IMAGE="ubuntu"
+FROM ${OS_IMAGE}:${OS_VER} as build
+
+RUN apt -o Acquire::Check-Date=false update && \
+    DEBIAN_FRONTEND=noninteractive && \
+    apt install -y wget unzip
+
+RUN mkdir /dataset
+
+WORKDIR /dataset
+
+# Download Dataset
+ARG SQUAD_DATASET_VER="v1.1"
+ARG SQUAD_DATASET_REPO="https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-${SQUAD_DATASET_VER}.json"
+
+ARG BASE_MODEL_VER="2019_05_30"
+ARG BASE_MODEL_REPO="https://storage.googleapis.com/bert_models/${BASE_MODEL_VER}/wwm_uncased_L-24_H-1024_A-16.zip"
+
+RUN wget ${BASE_MODEL_REPO} && \
+    unzip wwm_uncased_L-24_H-1024_A-16.zip && \
+    wget ${SQUAD_DATASET_REPO} -P wwm_uncased_L-24_H-1024_A-16 && \
+    rm -rf wwm_uncased_L-24_H-1024_A-16.zip
+
+# construct the final image
+FROM scratch
+COPY --from=build /dataset /dataset

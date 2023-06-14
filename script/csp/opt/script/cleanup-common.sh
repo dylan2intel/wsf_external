@@ -1,10 +1,15 @@
 #!/bin/bash
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 REGION_DIR="/opt/build/.regions"
 REGION_DIR_LOCK="/opt/build/.regions.lock"
 
 read_regions () {
-  REGIONS=($(flock "$REGION_DIR_LOCK" cat "$REGION_DIR/$1" | sort | uniq))
+  REGIONS=($(flock "$REGION_DIR_LOCK" cat "$REGION_DIR/$1" 2> /dev/null | sort | uniq))
 }
 
 delete_regions () {

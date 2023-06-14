@@ -1,4 +1,9 @@
 #!/bin/bash -e
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 
 # ######################################
 # Script that parses input arguments set by specjbb*.env.sh and sets appropriate local and global variables

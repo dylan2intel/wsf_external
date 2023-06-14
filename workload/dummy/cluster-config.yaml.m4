@@ -1,3 +1,8 @@
+#
+# Apache v2 license
+# Copyright (C) 2023 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
 include(config.m4)
 
 # The cluster-config.yaml.m4 manifest specifies the workload running environment. 
